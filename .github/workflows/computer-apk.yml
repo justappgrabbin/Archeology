@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths: ['computer/**', '.github/workflows/computer-apk.yml']
+    paths: ['computer/**', '.github/workflows/computer-apk.yml', 'verification/android-native-e2e.py']
 permissions:
   contents: read
 jobs:
