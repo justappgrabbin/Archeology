@@ -2,7 +2,7 @@ name: Build self-serving Synthia APK
 on:
   workflow_dispatch:
   push:
-    branches: [main]
+    branches: [main, fix/android-read-text]
     paths: ['computer/**', '.github/workflows/computer-apk.yml', 'verification/android-native-e2e.py']
 permissions:
   contents: read

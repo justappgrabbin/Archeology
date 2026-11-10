@@ -46,6 +46,12 @@ jobs:
       - name: Install frontend dependencies
         run: npm ci --ignore-scripts --prefix computer/shell/kimi-linux --registry=https://registry.npmjs.org
 
+      - name: Install existing ephemeris test dependency
+        run: |
+          python3 -m venv .venv
+          .venv/bin/python -m pip install ephem==4.2.1
+          echo "$GITHUB_WORKSPACE/.venv/bin" >> "$GITHUB_PATH"
+
       - name: Run computer tests and build frontend
         run: |
           npm run test:computer
