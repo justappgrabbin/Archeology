@@ -35,3 +35,15 @@ Real browser interaction exposed a full-window resize overlay blocking clicks, m
 ## Limits
 
 This verifies a Linux local Computer milestone. Windows/macOS runtime isolation, physical Android installation, mobile permissions, networked social interactions, autonomous neural coding, universal document extraction, and the complete advanced ontological/swarm program are not verified. The inherited penta formula is explicitly marked a placeholder by its donor; tests do not validate it as the user's five-chart mathematics. Exact Personality Sun calculations and the five-degree constraint remain research tasks. Unknown relationships were not filled with invented rules.
+
+## Android self-serving APK follow-up
+
+The phone release now starts the Computer service inside the APK, has touch navigation, native file-picker imports/exports, Android Back integration and staged checkpoint restore. The existing native host is retained. Android JavaScript execution uses the existing pipeline with a dedicated opaque iframe/Worker adapter; Node host evaluation is not substituted. Python/Linux shell report unavailable until a suitable runtime is installed.
+
+- 19 phone checks passed against the actual Android-mode host under the pinned Node 18 runtime.
+- 61 recovered regression tests still pass.
+- ARM64 and x86_64 APK builds passed; required native dependencies are present.
+- ARM64 APK v2 signature, ZIP integrity and alignment checks passed.
+- Native emulator installation/launch could not be completed because available workspace storage was insufficient for system images. Physical-phone installation remains unverified.
+
+The recovery application ID is separate so earlier app-private data is not replaced. See `computer/android/BUILD_APK.md` and `verification/android-package.json`.

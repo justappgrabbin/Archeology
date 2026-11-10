@@ -1,0 +1,13 @@
+{
+  "nativeAndroidInstalledAndLaunched": false,
+  "reason": "Android emulator system-image installation exhausted the execution workspace disk, including a retry with an older image. Incomplete image staging was removed; no source, APK or user runtime data was deleted.",
+  "passedInstead": [
+    "Native Java/C++ and dex/APK compilation",
+    "Required native library inclusion, including libc++_shared",
+    "APK ZIP integrity",
+    "APK v2 signature verification",
+    "APK alignment",
+    "19 phone flows against actual Android-mode local service using pinned Node 18"
+  ],
+  "remaining": "Install and run the ARM64 APK on a compatible physical phone or an emulator with enough storage."
+}

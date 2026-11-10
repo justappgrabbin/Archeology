@@ -23,7 +23,7 @@ Once installed, open **Synthia Computer**. Its local service starts automaticall
 - **61 recovered regression tests passed.**
 - **34 desktop end-to-end checks passed** for the preceding local milestone.
 - **19 phone-flow checks passed**, using the actual Android-mode host with pinned Node 18: touch layouts, source execution, network isolation, import, persistence, backup and restore.
-- APK compilation, ZIP integrity, native-library inclusion, v2 signature verification and alignment passed. Native emulator acceptance is tracked separately in the verification records.
+- APK compilation, ZIP integrity, native-library inclusion, v2 signature verification and alignment passed. Native installation/launch remains unverified: emulator image setup exceeded the workspace storage. See [native test status](verification/android-native-test-status.json).
 
 [Android build and runtime details](computer/android/BUILD_APK.md) · [Phone checks](verification/phone-computer-e2e-results.json) · [APK identity and hash](verification/android-package.json) · [Recovery inventory](docs/recovery/INVENTORY.md) · [Preservation record](verification/preservation-manifest.json)
 
