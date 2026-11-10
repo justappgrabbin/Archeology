@@ -8,6 +8,7 @@
  * (unknown stays unknown, and claimed statuses are never silently lowered).
  */
 
+import { readText } from '../host/read-text.mjs';
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 
@@ -22,7 +23,7 @@ export class CapabilityRegistryService {
   }
 
   async load() {
-    const doc = JSON.parse(await readFile(this.seedPath, 'utf8'));
+    const doc = JSON.parse(await readText(this.seedPath));
     for (const entry of doc.capabilities ?? []) {
       this.capabilities.set(entry.capability, entry);
     }
