@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto';
+import { readText } from './read-text.mjs';
 import { readFile, writeFile, mkdir, copyFile, rename, rm } from 'node:fs/promises';
 import { join } from 'node:path';
 const hash = s => createHash('sha256').update(s).digest('hex');
@@ -11,7 +12,7 @@ export function validateBackup(backup) {
 }
 export async function applyPendingRestore(dataDir) {
   let backup;
-  try { backup = validateBackup(JSON.parse(await readFile(join(dataDir, 'pending-restore.json'), 'utf8'))); }
+  try { backup = validateBackup(JSON.parse(await readText(join(dataDir, 'pending-restore.json')))); }
   catch(error) { if (error.code === 'ENOENT') return; throw error; }
   const previous = join(dataDir, `before-restore-${Date.now()}`);
   await mkdir(previous, { recursive: true });
