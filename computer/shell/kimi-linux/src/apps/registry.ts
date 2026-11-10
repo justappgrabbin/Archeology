@@ -1,6 +1,8 @@
 import type { AppDefinition } from '@/types';
 
 export const APP_REGISTRY: AppDefinition[] = [
+  { id: 'appstudio', name: 'App Studio', icon: 'Code2', category: 'DevTools', description: 'Build and address runnable local apps and games', defaultSize: { width: 900, height: 720 }, minSize: { width: 320, height: 240 } },
+  { id: 'applibrary', name: 'App library', icon: 'Library', category: 'Productivity', description: 'Select and run apps through their system addresses', defaultSize: { width: 850, height: 700 }, minSize: { width: 320, height: 240 } },
   { id: 'youniverse', name: 'You-N-I-Verse', icon: 'Home', category: 'Productivity', description: 'Personal goals, preferences and connected experiences', defaultSize: { width: 780, height: 650 }, minSize: { width: 320, height: 240 } },
   { id: 'social', name: 'Social Network', icon: 'Users', category: 'Internet', description: 'Private local relationships and shared-goal notes', defaultSize: { width: 700, height: 600 }, minSize: { width: 320, height: 240 } },
   { id: 'sciencelab', name: 'Science Lab', icon: 'FlaskConical', category: 'Productivity', description: 'Retain sources, findings, evidence and revisions', defaultSize: { width: 850, height: 700 }, minSize: { width: 320, height: 240 } },

@@ -11,6 +11,7 @@ import { readZipMembers } from './zip-members.mjs';
 import { runTerminal } from './local-terminal.mjs';
 import { isolatedRuntime } from './isolated-runtime.mjs';
 import { Workbench } from './workbench.mjs';
+import { AppLibrary } from './app-library.mjs';
 import { WebViewRuntime } from './webview-runtime.mjs';
 import { validateBackup } from './pending-restore.mjs';
 
@@ -62,6 +63,7 @@ const conversation = new ConversationExecution(computer, webviewRuntime
   : desktopSession ? { runtimeAdapters: [isolatedRuntime(join(dataDir, 'terminal'))] } : {});
 const files = new FileAdmission(computer, conversation.execution);
 const workbench = new Workbench(computer, files, conversation);
+const appLibrary = new AppLibrary(computer, files);
 await files.mirrorImported([]);
 
 // Import names are allocated before the first asynchronous write. This prevents
@@ -189,6 +191,16 @@ const server = createServer(async (req, res) => {
         return json(res, 200, await computer.projects.create({ name: String(value.name ?? '').slice(0, 200), description: String(value.description ?? '').slice(0, 2000) }));
       }
       if (req.method === 'GET' && url.pathname === '/api/capabilities') return json(res, 200, computer.capabilityRegistryService.listCapabilities());
+      if (req.method === 'GET' && url.pathname === '/api/apps') return json(res, 200, appLibrary.list());
+      if (req.method === 'POST' && url.pathname === '/api/apps/build') return json(res, 200, await appLibrary.build(await body(req)));
+      if (req.method === 'POST' && url.pathname === '/api/apps/select') return json(res, 200, await appLibrary.select(await body(req)));
+      const appRoute = url.pathname.match(/^\/api\/apps\/([a-f0-9-]{36})\/(source|launch|receipt)$/);
+      if (appRoute) {
+        const [, id, action] = appRoute;
+        if (req.method === 'GET' && action === 'source') return json(res, 200, await appLibrary.source(id));
+        if (req.method === 'POST' && action === 'launch') return json(res, 200, await appLibrary.launch(id));
+        if (req.method === 'POST' && action === 'receipt') return json(res, 200, await appLibrary.receipt(id, await body(req)));
+      }
       if (req.method === 'GET' && url.pathname === '/api/builds') return json(res, 200, workbench.builds());
       if (req.method === 'POST' && url.pathname === '/api/foundry-build') return json(res, 200, await workbench.build(await body(req)));
       if (req.method === 'GET' && url.pathname === '/api/backup') {

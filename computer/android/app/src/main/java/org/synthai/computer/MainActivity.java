@@ -39,6 +39,7 @@ public final class MainActivity extends Activity {
     private WebView browser;
     private ValueCallback<Uri[]> fileSelection;
     private byte[] pendingExport;
+    private final String fileBridgeCapability = newSessionToken();
     public native int startNode(String[] args);
 
     @Override public void onCreate(Bundle savedInstanceState) {
@@ -151,8 +152,15 @@ public final class MainActivity extends Activity {
         browser.getSettings().setDomStorageEnabled(true);
         browser.getSettings().setAllowFileAccess(false);
         browser.getSettings().setAllowContentAccess(true);
-        browser.addJavascriptInterface(new NativeFiles(), "SynthiaNative");
+        browser.addJavascriptInterface(new NativeFiles(), "__SynthiaNativeBridge");
         browser.setWebViewClient(new WebViewClient() {
+            @Override public void onPageFinished(WebView view, String url) {
+                if (!url.startsWith(ORIGIN + "/")) return;
+                // addJavascriptInterface reaches every frame. Only the trusted top document
+                // receives the unguessable capability in a closure; sandbox apps cannot call it.
+                String cap = org.json.JSONObject.quote(fileBridgeCapability);
+                view.evaluateJavascript("(()=>{const cap=" + cap + ";window.SynthiaNative={saveFile:(name,data)=>__SynthiaNativeBridge.saveFile(name,data,cap),restartForRestore:()=>__SynthiaNativeBridge.restartForRestore(cap)}})()", null);
+            }
             @Override public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
                 Uri uri = request.getUrl();
                 return !("http".equals(uri.getScheme()) && "127.0.0.1".equals(uri.getHost()) && uri.getPort() == 8765);
@@ -224,7 +232,8 @@ public final class MainActivity extends Activity {
     }
 
     private final class NativeFiles {
-        @JavascriptInterface public void saveFile(String name, String base64) {
+        @JavascriptInterface public void saveFile(String name, String base64, String capability) {
+            if (!fileBridgeCapability.equals(capability)) return;
             if (base64 == null || base64.length() > 28000000) return;
             final byte[] bytes;
             try { bytes = Base64.decode(base64, Base64.DEFAULT); } catch (IllegalArgumentException error) { return; }
@@ -237,7 +246,8 @@ public final class MainActivity extends Activity {
                 startActivityForResult(save, 82);
             });
         }
-        @JavascriptInterface public void restartForRestore() {
+        @JavascriptInterface public void restartForRestore(String capability) {
+            if (!fileBridgeCapability.equals(capability)) return;
             handler.post(() -> {
                 new android.app.AlertDialog.Builder(MainActivity.this).setTitle("Restore Synthia checkpoint?")
                     .setMessage("Synthia will close. Open the app again to apply the staged backup. Your previous state will be preserved.")
