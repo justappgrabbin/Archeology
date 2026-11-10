@@ -2,7 +2,7 @@ name: Build self-serving Synthia APK
 on:
   workflow_dispatch:
   push:
-    branches: [main]
+    branches: [main, codex/addressed-app-library-20261110]
     paths: ['computer/**', '.github/workflows/computer-apk.yml', 'verification/android-native-e2e.py']
 permissions:
   contents: read
@@ -22,7 +22,7 @@ jobs:
       - uses: android-actions/setup-android@v4
       - uses: gradle/actions/setup-gradle@v4
         with:
-          gradle-version: '8.7'
+          gradle-version: '8.9'
       - run: sdkmanager 'platforms;android-35' 'build-tools;35.0.0' 'ndk;27.0.12077973' 'cmake;3.22.1'
       - run: npm ci --ignore-scripts --prefix computer/shell/kimi-linux --registry=https://registry.npmjs.org
       - run: npm run build:desktop

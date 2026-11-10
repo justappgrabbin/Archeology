@@ -18,6 +18,10 @@ Once installed, open **Synthia Computer**. Its local service starts automaticall
 
 **Runtime boundaries:** Python and Linux shell require an additional installed runtime; a complete Linux userspace is not bundled in this APK. Unsupported executions report the missing runtime and preserve the source. The existing Linux/bubblewrap computer remains runnable from the same source. The five-chart mathematics and advanced autonomous research/construction remain unfinished.
 
+## App Studio and app library
+
+Build HTML/CSS/JavaScript apps and games inside the Computer. Each build preserves its source, receives the existing system address, and mounts in App library. Run it directly or use **Pick & run** to select a real capability match. Native APK compilation and per-app persistent data APIs are outside this browser-app runtime. [Usage and verification](docs/APP_STUDIO.md).
+
 ## Verification
 
 - **61 recovered regression tests passed.**

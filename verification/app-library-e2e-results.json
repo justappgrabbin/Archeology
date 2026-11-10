@@ -1,0 +1,12 @@
+{
+  "passed": 6,
+  "checks": [
+    "Phone builds an actual counter, assigns its address, and mounts it",
+    "App runs in the phone sandbox and responds to user input",
+    "Built app cannot access parent document, API network or native bridge",
+    "System selects and runs a real matching app for the user",
+    "A locally built game is playable through completion",
+    "App library and full source persist in Computer state and backup"
+  ],
+  "physicalAndroidDeviceTested": false
+}

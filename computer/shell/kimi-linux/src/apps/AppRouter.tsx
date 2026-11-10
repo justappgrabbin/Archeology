@@ -6,6 +6,7 @@ import Chat from './Chat';
 import Ingest from './Ingest';
 import Terminal from './Terminal';
 import Recovery from './Recovery';
+import { AppStudio, AppLibrary } from './AppStudio';
 import { YouNIV, SocialNetwork, ScienceLab, Foundry, Grove } from './Workbench';
 interface AppRouterProps { appId: string; windowId: string; }
 const AppRouter: FC<AppRouterProps> = ({ appId }) => {
@@ -20,6 +21,8 @@ const AppRouter: FC<AppRouterProps> = ({ appId }) => {
     case 'youniverse': return <YouNIV />;
     case 'social': return <SocialNetwork />;
     case 'sciencelab': return <ScienceLab />;
+    case 'appstudio': return <AppStudio />;
+    case 'applibrary': return <AppLibrary />;
     case 'foundry': return <Foundry />;
     case 'grove': return <Grove />;
     default: return <div className="p-4">This application is not installed.</div>;
