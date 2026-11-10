@@ -1,4 +1,5 @@
 import { createServer } from 'node:http';
+import { readText } from './read-text.mjs';
 import { timingSafeEqual, createHash } from 'node:crypto';
 import { readFile, stat, mkdir, writeFile } from 'node:fs/promises';
 import { join, resolve, extname, sep } from 'node:path';
@@ -193,7 +194,7 @@ const server = createServer(async (req, res) => {
       if (req.method === 'POST' && url.pathname === '/api/foundry-build') return json(res, 200, await workbench.build(await body(req)));
       if (req.method === 'GET' && url.pathname === '/api/backup') {
         const state = JSON.stringify({ [computer.state.namespace]: computer.state.snapshot() });
-        const events = await readFile(join(dataDir, 'events.jsonl'), 'utf8').catch(error => { if (error.code === 'ENOENT') return ''; throw error; });
+        const events = await readText(join(dataDir, 'events.jsonl')).catch(error => { if (error.code === 'ENOENT') return ''; throw error; });
         return json(res, 200, { schema: 'synthia-local-backup-v1', createdAt: new Date().toISOString(), state, sha256: createHash('sha256').update(state).digest('hex'), events, eventsSha256: createHash('sha256').update(events).digest('hex') });
       }
       if (desktopSession && req.method === 'POST' && url.pathname === '/api/shutdown') {
