@@ -1,0 +1,111 @@
+✔ ACCEPTANCE 1: capability routing for resolve_address (31.170472ms)
+ℹ (2/3) providers: back-up-:execution-spine-canonical-address[WIRED] back-up-:kimi-dms-codec[VERIFIED] back-up-:kimi-coordinate-engine[PRESENT] recovered:yniv-addressing-engine[WIRED]
+ℹ (4-6) auto route -> recovered:yniv-addressing-engine; micro index 45088 -> gate 42
+ℹ (7-10) consumption receipt persisted; evidence=computer/tests/acceptance-1-routing.test.mjs
+ℹ hint change -> back-up-:execution-spine-canonical-address; canonical_key=planetary=4|dimension=Being|gate=42|line=5|color=3|tone=6|base=4|degree=248|minute=19|second=52|arcAxis={"arcUnit":11}|zodiac=6|house=8
+ℹ no duplicate implementations; provider set stable across strategies
+✔ ACCEPTANCE 2: application mounting with shared services + restart recovery (68.194124ms)
+ℹ mounted appId=diagnostic-shell mountId=mount-1794285217857-vhyi4 artifact=artifact-bf5cfb6c-2505-4ddf-b297-426a14f2a697
+ℹ app emitted evt-025c78e6-0414-4749-ae0c-878d77922f70; address gate 64 resolved on app's behalf; state persisted
+ℹ restart recovery: app state + mount record + event all recovered
+✔ ACCEPTANCE 3: reality/world event through the mounted world process (692.740677ms)
+ℹ origin event evt-06283d67-0602-4224-af7f-42b664d7e5a6 addressed gate 64
+ℹ world: agent moved 94.0->91.8; memory consolidated (longTerm=1); 5W events=4
+ℹ backward trace: evt-9809ece6-6728-4f19-8e9a-fcf83d05fac7 -> parents -> evt-06283d67-0602-4224-af7f-42b664d7e5a6 (restart replay intact)
+ℹ penta roles: A=Provider(G44) B=Foundation(G42) C=Director(G46) D=Director(G54) E=Foundation(G33); needed=Connector,Transmitter [position formula: PLACEHOLDER — flagged]
+✔ ACCEPTANCE 4: digital skynthia effect (morph-expression, honest contract) (558.818168ms)
+ℹ effect: world move 1.70 -> morph.express -> StateStore morph.targets + event persisted+replayed; renderer NOT FOUND (path: wire morph.targets to a public/ shell or a canvas renderer service)
+✔ ACCEPTANCE 5: restart recovery of all persistence categories (76.045751ms)
+ℹ recovered: identity, state, app mount, events+trajectory+lineage, services, capability registry+verification history; operation continued (gate 7)
+✔ ACCEPTANCE 6: resonance/project loop with real providers (65.313293ms)
+ℹ loop: project=project-af7abe1b-f511-4c45-b341-48f6640cc08c channel=AWAKENING gate=38 artifact+participant state persisted; trajectory explanation assembled
+✔ ACCEPTANCE 7: experiment loop with explicit evidence classification (20.293508ms)
+ℹ experiment: run1 gate 38 -> observation (no replication); run2 replicated -> donor evaluate -> supported_result (hypothesis supported); 2 events persisted+replayed
+✔ ACCEPTANCE 8: state-space resolution end-to-end (100.287291ms)
+ℹ E2E: user:traveler G64 -> edge NONE -> routed to recovered:foundry-glyphs-ephemeris (G38); explanation: 2 events chained
+✔ ACCEPTANCE 9: historical recovery proof for all recovered donors (99.263324ms)
+ℹ recovery proof: 4 provenance records w/ SHA, 5 providers registered+executed (YNIV 45088, AWAKENING, gate 38, world spawn, penta G44)
+[a] resolveAddress(1990-01-01 12:00 UTC) = {"planetary":"Sun","dimension":null,"gate":64,"line":5,"color":2,"tone":2,"base":4,"degree":11,"minute":19,"second":15,"arc":1012756,"zodiac":"Capricorn","house":7}
+[a] provider = back-up-:kimi-human-design
+✔ (a) resolveAddress for real birth datum returns 13-field address from the REAL donor provider (29.929ms)
+[b] resolveState source_provider = back-up-:kimi-mesh-state-space+kimi-human-design (address via back-up-:kimi-human-design)
+[b] confidence = {"level":"high","resolved_fields":12,"of":13}
+✔ (b) resolveState returns address+state with source_provider naming the donor module (53.568897ms)
+[c] persisted + re-read event evt-1331c4a6-e99d-4faa-b09c-1fb7e5958353 trajectory traj-1b1df5a6-365a-43e3-8769-4cf699973ffc
+✔ (c) emitEvent persists to events.jsonl and survives simulated restart (12.7945ms)
+[d] resolve_address providers = ["back-up-:execution-spine-canonical-address","back-up-:kimi-dms-codec","back-up-:kimi-coordinate-engine","recovered:yniv-addressing-engine"]
+[d] route(resolve_address) -> back-up-:kimi-dms-codec
+✔ (d) queryCapability lists the donor providers with statuses (4.534652ms)
+▶ execute intake preserves identities and rejects mismatched addressed paths
+  ✔ same-name sequential and concurrent source admissions remain distinct (729.841204ms)
+  ✔ address with explicit wrong path cannot execute a fallback artifact (3.470636ms)
+  ✔ all ten path and digest pairs survive service restart (761.432959ms)
+✔ execute intake preserves identities and rejects mismatched addressed paths (2529.928434ms)
+▶ full Computer rejects foreign HTTP origins and hosts without breaking local WebView
+  ✔ foreign Origin rejected (2.097035ms)
+  ✔ foreign Host rejected (2.416415ms)
+  ✔ cross-site Fetch Metadata rejected (0.946199ms)
+  ✔ opaque Origin rejected (1.088793ms)
+  ✔ Android WebView same-origin accepted (8.337606ms)
+  ✔ native localhost client accepted (5.586288ms)
+  ✔ denied writes have no persistent records (1.198958ms)
+  ✔ foreign Origin cannot read API GET (1.289805ms)
+✔ full Computer rejects foreign HTTP origins and hosts without breaking local WebView (511.256211ms)
+▶ packaged Computer imports retain originals across duplicate names, concurrent requests and restart
+  ✔ same filename allocates a second path (1.303795ms)
+  ✔ both JS byte strings remain addressable (9.064085ms)
+  ✔ ZIP originals receive separate paths (0.694321ms)
+  ✔ extracted ZIP files do not overwrite (8.205883ms)
+  ✔ five simultaneous same-name imports receive distinct paths (0.303015ms)
+  ✔ all simultaneous originals retain their exact digest (10.805362ms)
+  ✔ restart restores first JS and first ZIP member (5.034812ms)
+  ✔ restart restores all five concurrent records (6.875754ms)
+✔ packaged Computer imports retain originals across duplicate names, concurrent requests and restart (966.670814ms)
+▶ local Computer API requires Android-issued session capability
+  ✔ unauthenticated local GET and POST rejected (6.882764ms)
+  ✔ incorrect or duplicate cookie rejected (3.334932ms)
+  ✔ valid session can ingest and retrieve (45.268858ms)
+  ✔ foreign origin forbidden even with valid session (1.558067ms)
+  ✔ restart rotates token and preserves file bytes (3.402824ms)
+✔ local Computer API requires Android-issued session capability (1042.023671ms)
+✔ MILESTONE: one real event through the full chain (326.180004ms)
+ℹ ADDRESS: {"planetary":"Sun","dimension":null,"gate":64,"line":5,"color":2,"tone":2,"base":4,"degree":11,"minute":19,"second":15,"arc":1012756,"zodiac":"Capricorn","house":7}
+ℹ STATE: source_provider=back-up-:kimi-mesh-state-space+kimi-human-design (address via back-up-:kimi-human-design)
+ℹ SWARM: processCount=47
+ℹ LEARN: worker=deg-grammar-learner rules=15
+ℹ GENERATE: nodes=4 applications=3
+ℹ EVENT: evt-4149a622-7b04-46b6-8bbf-757d42d949d3 persisted, trajectory=traj-milestone-one-real-event
+ℹ REPLAY: event evt-4149a622-7b04-46b6-8bbf-757d42d949d3 recovered; consumption receipt intact (task milestone-generate)
+ℹ MILESTONE COMPLETE: EVENT->ADDRESS->STATE-SPACE->AUTOMATA->ROUTE->ACTION->RESULT->CONSUMPTION->VERIFY->STATE TRANSITION->TRAJECTORY->REPLAY
+✔ imported source survives restart and exact address reactivates ATO and execution (161.410776ms)
+✔ stage4d: recovered YNIV addressing + Foundry-Glyphs ephemeris (21.932177ms)
+ℹ (a) YNIV micro index=45088 -> G42.L5.C3.T6.B4; macro index=2515
+ℹ (b) resolveRelationship(g10,g20) edge=AWAKENING score=0.7 trace="Awakening: Gates 10 and 20 awaken to 0.800"
+ℹ (c) ephemeris Capricorn 11°19'15" -> G38.L2.C6.T4.B5; resolveState source=back-up-:kimi-mesh-state-space+kimi-human-design (address via recovered:foundry-glyphs-ephemeris)
+ℹ (d) routing_decision candidates=back-up-:execution-spine-canonical-address, back-up-:kimi-dms-codec, back-up-:kimi-coordinate-engine, recovered:yniv-addressing-engine -> selected=recovered:yniv-addressing-engine
+ℹ (e) event evt-cfbd9d5b-392f-486b-83ad-b6d05359cedf persisted; fresh-runtime replay intact
+✔ real Computer boot restores mounted application and exact dotted source bytes (9.975031ms)
+✔ legacy VFS-only source recovers its original bytes and mount after restart (4.487041ms)
+✔ corrupt registration is reported but never removed from source state (2.834212ms)
+✔ conflicting persisted artifact registration is preserved, never replaced by legacy recovery (2.936985ms)
+✔ ambiguous legacy VFS files are retained without arbitrary app registration (2.059508ms)
+✔ restart refuses contradictory persisted mounts without changing their source records (2.562083ms)
+✔ live mount refuses app ID reused for a different artifact, preserving prior mount (1.938458ms)
+✔ compatible multiple mounts survive restart and retain the same artifact identity (2.368182ms)
+✔ live mount cannot replace an existing non-artifact application identity (1.234882ms)
+✔ boot macros micros (7.137316ms)
+✔ intake mutation mount persistence (5.256013ms)
+✔ mutation failure surfaces (1.844757ms)
+✔ automata and process use real inputs (1.936405ms)
+✔ cultivation persists (1.985247ms)
+✔ xynthai boundary (1.705919ms)
+✔ project workspace persists real files and publication result (2.869284ms)
+✔ GitHub adapter sends project files and surfaces bridge failures (0.712719ms)
+ℹ tests 61
+ℹ suites 0
+ℹ pass 61
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 14364.44618

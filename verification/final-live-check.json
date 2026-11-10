@@ -1,0 +1,6 @@
+{
+  "capabilityRegistryUI": true,
+  "retainedKleinCompositionAfterRestart": true,
+  "eventLogInBackup": true,
+  "browserScriptErrors": []
+}

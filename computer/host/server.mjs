@@ -1,0 +1,274 @@
+import { createServer } from 'node:http';
+import { timingSafeEqual, createHash } from 'node:crypto';
+import { readFile, stat, mkdir, writeFile } from 'node:fs/promises';
+import { join, resolve, extname, sep } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { ComputerRuntime } from '../ComputerRuntime.mjs';
+import { JsonFilePersistence } from '../runtime/json-file-persistence.mjs';
+import { ConversationExecution } from '../services/conversation-execution.mjs';
+import { FileAdmission } from '../services/file-admission.mjs';
+import { readZipMembers } from './zip-members.mjs';
+import { runTerminal } from './local-terminal.mjs';
+import { isolatedRuntime } from './isolated-runtime.mjs';
+import { Workbench } from './workbench.mjs';
+import { WebViewRuntime } from './webview-runtime.mjs';
+import { validateBackup } from './pending-restore.mjs';
+
+const root = resolve(fileURLToPath(new URL('../shell/kimi-linux/dist/', import.meta.url)));
+const dataDir = resolve(process.env.SYNTHIA_DATA_DIR ?? fileURLToPath(new URL('../runtime/data/local-computer/', import.meta.url)));
+const port = Number(process.env.SYNTHIA_PORT ?? 8765);
+const host = '127.0.0.1';
+// A per-process capability is provisioned by the Android host and stored only
+// in WebView's HttpOnly cookie jar. Host/Origin validation alone is not auth.
+// Insecure mode is an explicit opt-in for isolated development/tests only.
+const apiToken = process.env.SYNTHIA_API_TOKEN ?? '';
+const insecureDevelopment = process.env.SYNTHIA_ALLOW_INSECURE_DEV === '1';
+const desktopSession = process.env.SYNTHIA_DESKTOP_SESSION === '1';
+const androidRuntime = process.env.SYNTHIA_ANDROID === '1';
+const webviewRuntime = androidRuntime ? new WebViewRuntime() : null;
+if (!insecureDevelopment && !/^[a-f0-9]{64}$/.test(apiToken)) {
+  throw new Error('Synthia Computer requires a 256-bit local API session token.');
+}
+const expectedToken = insecureDevelopment ? null : Buffer.from(apiToken, 'hex');
+function isAuthorizedRequest(req) {
+  if (insecureDevelopment) return true;
+  const candidates = String(req.headers.cookie ?? '').split(';')
+    .map(part => part.trim())
+    .filter(part => part.startsWith('synthia_session='))
+    .map(part => part.slice('synthia_session='.length));
+  if (candidates.length !== 1 || !/^[a-f0-9]{64}$/.test(candidates[0])) return false;
+  return timingSafeEqual(Buffer.from(candidates[0], 'hex'), expectedToken);
+}
+
+// WebView and the resident Node service share a loopback origin. Reject foreign
+// Host/Origin and cross-site Fetch Metadata before any API or file operation.
+// This is a browser/DNS-rebinding boundary, not authentication for other local apps.
+const allowedAuthorities = new Set([`127.0.0.1:${port}`, `localhost:${port}`]);
+const allowedOrigins = new Set([...allowedAuthorities].map(authority => `http://${authority}`));
+function isLocalRequest(req) {
+  const origin = req.headers.origin;
+  const fetchSite = req.headers['sec-fetch-site'];
+  return allowedAuthorities.has(req.headers.host)
+    && (origin === undefined || allowedOrigins.has(origin))
+    && (fetchSite === undefined || fetchSite === 'same-origin' || fetchSite === 'none');
+}
+await mkdir(dataDir, { recursive: true });
+const computer = await new ComputerRuntime({
+  persistence: new JsonFilePersistence(join(dataDir, 'state.json')),
+  eventLogPath: join(dataDir, 'events.jsonl'),
+}).boot();
+const conversation = new ConversationExecution(computer, webviewRuntime
+  ? { runtimeAdapters: [webviewRuntime.adapter()] }
+  : desktopSession ? { runtimeAdapters: [isolatedRuntime(join(dataDir, 'terminal'))] } : {});
+const files = new FileAdmission(computer, conversation.execution);
+const workbench = new Workbench(computer, files, conversation);
+await files.mirrorImported([]);
+
+// Import names are allocated before the first asynchronous write. This prevents
+// an upload with the same filename from replacing an earlier user's original.
+const activeImportPaths = new Set();
+function reserveImportPath(originalName) {
+  const dot = originalName.lastIndexOf('.');
+  const stem = dot > 0 ? originalName.slice(0, dot) : originalName;
+  const extension = dot > 0 ? originalName.slice(dot) : '';
+  for (let copy = 1; copy <= 10000; copy++) {
+    const name = copy === 1 ? originalName : `${stem} (${copy})${extension}`;
+    const path = `/home/user/Imports/${name}`;
+    const members = name.toLowerCase().endsWith('.zip')
+      ? `/home/user/Imports/${name.slice(0, -4)}/` : null;
+    if (activeImportPaths.has(path) || computer.vfs.read(path)) continue;
+    if (members && (activeImportPaths.has(members) || computer.vfs.list(members).length)) continue;
+    activeImportPaths.add(path);
+    if (members) activeImportPaths.add(members);
+    return { name, path, members, release() {
+      activeImportPaths.delete(path);
+      if (members) activeImportPaths.delete(members);
+    } };
+  }
+  throw new RangeError('Import name collision limit reached.');
+}
+
+// Execution requests without an existing address are new admissions, not editor saves.
+// Reserve a unique Documents path before any asynchronous write so concurrent
+// requests cannot replace an earlier source under the same user-facing name.
+const activeExecutionPaths = new Set();
+function reserveExecutionPath(originalName) {
+  const safeName = String(originalName ?? 'artifact').split(/[\\/]/).at(-1).replace(/[^\w. -]/g, '_');
+  if (!safeName || safeName === '.' || safeName === '..') throw new TypeError('Invalid execution artifact name.');
+  const dot = safeName.lastIndexOf('.');
+  const stem = dot > 0 ? safeName.slice(0, dot) : safeName;
+  const extension = dot > 0 ? safeName.slice(dot) : '';
+  for (let copy = 1; copy <= 10000; copy++) {
+    const name = copy === 1 ? safeName : `${stem} (${copy})${extension}`;
+    const path = `/home/user/Documents/${name}`;
+    if (activeExecutionPaths.has(path) || computer.vfs.read(path)) continue;
+    activeExecutionPaths.add(path);
+    return { path, release() { activeExecutionPaths.delete(path); } };
+  }
+  throw new RangeError('Execution artifact name collision limit reached.');
+}
+
+async function ingestUpload({ name, base64 }) {
+  if (typeof name !== 'string' || !name || typeof base64 !== 'string' || base64.length > 8000000) throw new TypeError('A named file of at most 6 MB is required.');
+  const safeName = name.split(/[\\/]/).at(-1).replace(/[^\w. -]/g, '_');
+  if (!safeName || safeName === '.' || safeName === '..') throw new TypeError('Invalid file name.');
+  const bytes = Buffer.from(base64, 'base64');
+  const asText = (buffer) => {
+    try { return new TextDecoder('utf-8', { fatal: true }).decode(buffer).includes('\0') ? null : new TextDecoder().decode(buffer); }
+    catch { return null; }
+  };
+  const save = async (path, buffer, source) => {
+    const text = asText(buffer);
+    const record = await files.write(path, text === null ? buffer.toString('base64') : text, source, text === null ? 'base64' : 'utf8');
+    return { path: record.path, address: record.meta.address, addressKey: record.meta.addressKey, digest: record.meta.digest, encoding: record.meta.encoding, size: buffer.length, dna: record.meta.dna };
+  };
+  const reservation = reserveImportPath(safeName);
+  try {
+    const archive = await save(reservation.path, bytes, 'file-import');
+    if (!reservation.members) {
+      await files.mirrorImported([archive]);
+      return { items: [archive] };
+    }
+    const items = [archive];
+    for (const { name: entry, content } of readZipMembers(bytes)) {
+      items.push(await save(`${reservation.members}${entry}`, content, `archive:${archive.addressKey}`));
+    }
+    await files.mirrorImported(items);
+    return { items };
+  } finally {
+    reservation.release();
+  }
+}
+
+const mime = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.svg': 'image/svg+xml', '.png': 'image/png', '.jpg': 'image/jpeg', '.webp': 'image/webp', '.ico': 'image/x-icon' };
+const json = (res, status, value) => {
+  res.writeHead(status, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff' });
+  res.end(JSON.stringify(value));
+};
+async function body(req) {
+  let text = '';
+  for await (const part of req) {
+    text += part;
+    if (text.length > 8500000) throw new RangeError('Request is too large.');
+  }
+  return JSON.parse(text);
+}
+
+const server = createServer(async (req, res) => {
+  try {
+    if (!isLocalRequest(req)) return json(res, 403, { error: 'Computer requests must use its local origin.' });
+    const url = new URL(req.url ?? '/', `http://${host}:${port}`);
+    if (desktopSession && url.pathname === '/session' && req.method === 'POST') {
+      const { token } = await body(req);
+      if (typeof token !== 'string' || !/^[a-f0-9]{64}$/.test(token) || !timingSafeEqual(Buffer.from(token, 'hex'), expectedToken)) return json(res, 401, { error: 'Incorrect local sign-in code.' });
+      res.setHeader('Set-Cookie', `synthia_session=${token}; HttpOnly; SameSite=Strict; Path=/`);
+      return json(res, 200, { ready: true });
+    }
+    if (desktopSession && url.pathname === '/' && !isAuthorizedRequest(req)) {
+      res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store', 'Referrer-Policy': 'no-referrer', 'X-Frame-Options': 'DENY' });
+      return res.end(`<!doctype html><html lang="en"><meta name="viewport" content="width=device-width"><title>Synthia — Local sign in</title><style>body{font:18px system-ui;background:#15121e;color:#eee;max-width:540px;margin:12vh auto;padding:24px}input,button{box-sizing:border-box;width:100%;padding:14px;margin:8px 0;font:inherit}button{background:#7353ac;color:white;border:0;cursor:pointer}</style><h1>Synthia</h1><p>Paste the local sign-in code printed by your start command.</p><form><label>Local sign-in code<input type="password" autocomplete="off" required></label><button>Open computer</button></form><p role="status"></p><script>document.querySelector('form').onsubmit=async e=>{e.preventDefault();try{const r=await fetch('/session',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token:document.querySelector('input').value.trim()})});const v=await r.json();if(!r.ok)throw Error(v.error);location.reload()}catch(e){document.querySelector('[role=status]').textContent=e.message}};</script></html>`);
+    }
+    if (url.pathname.startsWith('/api/')) {
+      if (!isAuthorizedRequest(req)) return json(res, 401, { error: 'Computer session authorization required.' });
+      if (androidRuntime && req.method === 'POST' && url.pathname === '/api/stage-restore') {
+        const backup = validateBackup(await body(req));
+        await writeFile(join(dataDir, 'pending-restore.json'), JSON.stringify(backup), { mode: 0o600 });
+        return json(res, 200, { staged: true, message: 'Validated backup staged. Close and reopen Synthia to restore; previous state will be preserved.' });
+      }
+      if (webviewRuntime && req.method === 'GET' && url.pathname === '/api/runtime-tasks') return json(res, 200, webviewRuntime.poll());
+      if (webviewRuntime && req.method === 'POST' && url.pathname === '/api/runtime-result') return json(res, 200, webviewRuntime.complete(await body(req)));
+      if (req.method === 'GET' && url.pathname === '/api/research') return json(res, 200, workbench.research(url.searchParams.get('q') ?? ''));
+      if (req.method === 'POST' && url.pathname === '/api/research') return json(res, 200, await workbench.addResearch(await body(req)));
+      if (req.method === 'GET' && url.pathname === '/api/profile') return json(res, 200, workbench.profile());
+      if (req.method === 'PUT' && url.pathname === '/api/profile') return json(res, 200, await workbench.saveProfile(await body(req)));
+      if (req.method === 'GET' && url.pathname === '/api/contacts') return json(res, 200, workbench.contacts());
+      if (req.method === 'POST' && url.pathname === '/api/contacts') return json(res, 200, await workbench.addContact(await body(req)));
+      if (req.method === 'GET' && url.pathname === '/api/projects') return json(res, 200, computer.projects.list());
+      if (req.method === 'POST' && url.pathname === '/api/projects') {
+        const value = await body(req);
+        return json(res, 200, await computer.projects.create({ name: String(value.name ?? '').slice(0, 200), description: String(value.description ?? '').slice(0, 2000) }));
+      }
+      if (req.method === 'GET' && url.pathname === '/api/capabilities') return json(res, 200, computer.capabilityRegistryService.listCapabilities());
+      if (req.method === 'GET' && url.pathname === '/api/builds') return json(res, 200, workbench.builds());
+      if (req.method === 'POST' && url.pathname === '/api/foundry-build') return json(res, 200, await workbench.build(await body(req)));
+      if (req.method === 'GET' && url.pathname === '/api/backup') {
+        const state = JSON.stringify({ [computer.state.namespace]: computer.state.snapshot() });
+        const events = await readFile(join(dataDir, 'events.jsonl'), 'utf8').catch(error => { if (error.code === 'ENOENT') return ''; throw error; });
+        return json(res, 200, { schema: 'synthia-local-backup-v1', createdAt: new Date().toISOString(), state, sha256: createHash('sha256').update(state).digest('hex'), events, eventsSha256: createHash('sha256').update(events).digest('hex') });
+      }
+      if (desktopSession && req.method === 'POST' && url.pathname === '/api/shutdown') {
+        json(res, 200, { stopped: true });
+        server.close(() => process.exit(0));
+        return;
+      }
+      if (req.method === 'POST' && url.pathname === '/api/terminal') {
+        const policy = computer.state.get('computer.local.policy', { terminal: false });
+        if (!policy.terminal) return json(res, 403, { error: 'Enable isolated terminal execution in Recovery & Controls first.' });
+        const result = await runTerminal(join(dataDir, 'terminal'), (await body(req)).command);
+        const prior = computer.state.get('computer.local.terminal', []);
+        await computer.state.set('computer.local.terminal', [...prior, { ...result, at: new Date().toISOString() }].slice(-30), { source: 'isolated-terminal' });
+        return json(res, 200, result);
+      }
+      if (req.method === 'GET' && url.pathname === '/api/local-controls') return json(res, 200, computer.state.get('computer.local.policy', { terminal: false }));
+      if (req.method === 'PUT' && url.pathname === '/api/local-controls') {
+        const policy = await body(req);
+        if (typeof policy.terminal !== 'boolean') throw new TypeError('terminal must be true or false.');
+        return json(res, 200, await computer.state.set('computer.local.policy', { terminal: policy.terminal }, { source: 'user-controls' }));
+      }
+      if (req.method === 'GET' && url.pathname === '/api/terminal-history') return json(res, 200, computer.state.get('computer.local.terminal', []));
+      if (req.method === 'GET' && url.pathname === '/api/status') {
+        const swarm = await computer.automataGateway.snapshot();
+        return json(res, 200, { ready: true, computer: 'SynthAI Computer', platform: androidRuntime ? 'android' : process.platform, swarmProcesses: swarm.processCount, files: computer.vfs.list('/').length });
+      }
+      if (req.method === 'GET' && url.pathname === '/api/history') return json(res, 200, conversation.history());
+      if (req.method === 'POST' && url.pathname === '/api/chat') return json(res, 200, await conversation.talk((await body(req)).text));
+      if (req.method === 'GET' && url.pathname === '/api/filesystem') return json(res, 200, computer.state.get('computer.desktop.filesystem', null));
+      if (req.method === 'PUT' && url.pathname === '/api/filesystem') {
+        const filesystem = await body(req);
+        return json(res, 200, await files.admitDesktop(filesystem));
+      }
+      if (req.method === 'GET' && url.pathname === '/api/resolve-file') {
+        const matches = files.resolve(url.searchParams.get('address') ?? '');
+        return json(res, 200, matches.map(({ path, meta }) => ({ path, address: meta.address, digest: meta.digest, dna: meta.dna })));
+      }
+      if (req.method === 'GET' && url.pathname === '/api/files') return json(res, 200, computer.vfs.list('/').map(({ content, ...record }) => record));
+      if (req.method === 'GET' && url.pathname === '/api/activate-file') {
+        return json(res, 200, await files.activate(url.searchParams.get('address') ?? '', url.searchParams.get('path') ?? ''));
+      }
+      if (req.method === 'POST' && url.pathname === '/api/ingest') return json(res, 200, await ingestUpload(await body(req)));
+      if (req.method === 'PUT' && url.pathname === '/api/files') {
+        const { path, content } = await body(req);
+        return json(res, 200, await files.write(path, content, 'kimi-linux-file'));
+      }
+      if (req.method === 'POST' && url.pathname === '/api/execute') {
+        const request = await body(req);
+        let admitted;
+        if (request.addressKey) {
+          const matches = files.resolve(request.addressKey);
+          admitted = request.path ? matches.find((entry) => entry.path === request.path) : matches[0];
+        } else {
+          const reservation = reserveExecutionPath(request.name);
+          try { admitted = await files.write(reservation.path, request.content, 'execution-intake'); }
+          finally { reservation.release(); }
+        }
+        if (!admitted) throw new TypeError('No artifact found at that state-space address.');
+        const artifact = await files.activate(admitted.meta.addressKey, admitted.path);
+        if (artifact.meta.encoding === 'base64') throw new TypeError('Binary artifacts cannot be executed as text.');
+        return json(res, 200, await conversation.executeArtifact({ name: artifact.path.split('/').at(-1), type: request.type, content: artifact.content }));
+      }
+      return json(res, 404, { error: 'Unknown computer operation.' });
+    }
+    if (req.method !== 'GET' && req.method !== 'HEAD') return json(res, 405, { error: 'Method not allowed.' });
+    const requested = decodeURIComponent(url.pathname === '/' ? '/index.html' : url.pathname);
+    const path = resolve(root, '.' + requested);
+    if (path !== root && !path.startsWith(root + sep)) return json(res, 403, { error: 'Invalid path.' });
+    const target = (await stat(path).catch(() => null))?.isFile() ? path : join(root, 'index.html');
+    const bytes = await readFile(target);
+    res.writeHead(200, { 'Content-Type': mime[extname(target)] ?? 'application/octet-stream', 'X-Content-Type-Options': 'nosniff' });
+    res.end(req.method === 'HEAD' ? undefined : bytes);
+  } catch (error) {
+    const code = error instanceof SyntaxError || error instanceof TypeError || error instanceof RangeError ? 400 : 500;
+    json(res, code, { error: String(error?.message ?? error) });
+  }
+});
+server.listen(port, host, () => console.log(`Synthia Computer ready at http://${host}:${port}`));

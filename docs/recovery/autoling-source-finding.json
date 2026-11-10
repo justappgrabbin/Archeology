@@ -1,0 +1,12 @@
+{
+  "kind": "source-statement",
+  "question": "How does AUTOLING retain or reject a proposed substitution?",
+  "source": "https://drive.google.com/file/d/1lyBlx1dKfAIp4GdRsKBRegiu_OPnoMpx/view",
+  "reference": "UWCS TR43 (1968), section 3.1.1, printed p.10 / PDF p.13",
+  "finding": "Only full sentences are presented for acceptance or rejection. YES permits the substitution; NO prevents it and adds the test sentence to the illegal list. The page also describes consolidating duplicate rules and avoiding unexitable node loops.",
+  "uncertainty": "Scanned original read visually and by OCR. This statement does not establish completeness of any reconstructed implementation.",
+  "implementations": "language-contact-model/klein_autoling.py; retained unchanged in computer/donors/recovered/lcm-klein/",
+  "dependencies": "Python 3 standard library; original report; informant feedback",
+  "verification": "Original module replay: 10 checks printed PASS and ALL PASS on 2026-11-10. Broader generalization not established.",
+  "conflicts": "Module explicitly does not implement heuristic 5 class splitting or the section 4 transformation learner."
+}

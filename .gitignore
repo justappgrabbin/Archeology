@@ -1,0 +1,14 @@
+node_modules/
+**/node_modules/
+.synthia/
+.venv/
+computer/runtime/data/
+computer/shell/kimi-linux/dist/
+verification/*.png
+*.tsbuildinfo
+computer/android/.gradle/
+computer/android/local.properties
+computer/android/app/build/
+computer/android/app/.cxx/
+computer/android/app/libnode/
+computer/android/app/src/main/assets/*.zip

@@ -1,0 +1,61 @@
+{
+  "baselineCommit": "409c271a2edab730ffb9d09f35a5b1a39d4f7025",
+  "unchangedFiles": 906,
+  "missingOriginalFiles": [],
+  "modifiedOriginalFiles": [
+    {
+      "path": "computer/host/server.mjs",
+      "originalSha256": "e22e02b8594110b251c5dbd4522fecf26e2f7e8e68c58046d0abe6c73f65d059",
+      "currentSha256": "45f2d88fa772b01dbbdb7f8485fc32b99f058729cf74c30a1db98f56e186f361"
+    },
+    {
+      "path": "computer/services/conversation-execution.mjs",
+      "originalSha256": "f109bd42b93452cffaf0a907ae1ca38842c8fa7d38f753859513688c1abaaf5c",
+      "currentSha256": "3f5cbb4d7782ea98cd4b292166e92e2677d3461b089798f2dd02cc0d31a44316"
+    },
+    {
+      "path": "computer/services/file-admission.mjs",
+      "originalSha256": "da921132464a93ca7a81af49f32fccbb8933c8b676154da20e86a4039c57dbd2",
+      "currentSha256": "43541ddcae879411d1bf3cf955914f6fa552521cc2ff5813b1aefea4b2a42bd2"
+    },
+    {
+      "path": "computer/shell/kimi-linux/package-lock.json",
+      "originalSha256": "2c8f4d18c15fd0fae4744f6266d450d0b61cfc9d4fa6329386389795e8b98dc3",
+      "currentSha256": "80c8eb9c3d8fa6e854d499f9c30005195d53481d6b104a4afd83150c28d1af27"
+    },
+    {
+      "path": "computer/shell/kimi-linux/src/apps/AppRouter.tsx",
+      "originalSha256": "9e90c1a8cd4d9f18715f92b80e666e04c3a0577dd846828bb3b71110ab0312dc",
+      "currentSha256": "e39d8551f28d895f9429f67f2f5add522d04c3b777c2a47e46b53e053089e4fc"
+    },
+    {
+      "path": "computer/shell/kimi-linux/src/apps/FileManager.tsx",
+      "originalSha256": "845772049a31f092e84736cadd4105f66616a02b155a341c5c746ad1bb7eece9",
+      "currentSha256": "1ad3804552f4ce46307f396ef257edf660adfe3e52bf7a8b14807d30fbf107a6"
+    },
+    {
+      "path": "computer/shell/kimi-linux/src/apps/Ingest.tsx",
+      "originalSha256": "b86ddf5b6d9c68bf87ac58d3f943a924018d2161098a17cfc452205b8b5193d2",
+      "currentSha256": "aee5eb134d413086ef96f0b4e43c9c41c05124a3ca95ab6eb0c0cc80ec095e96"
+    },
+    {
+      "path": "computer/shell/kimi-linux/src/apps/registry.ts",
+      "originalSha256": "fc2b1ee9f3acd5808119b637293c987f5844d05603990183dc34f6e48fd70c5d",
+      "currentSha256": "791dc70d7a9490327d1c461063ec6536573bb849bf4111fd52cfdf2b3d3d07bc"
+    },
+    {
+      "path": "computer/shell/kimi-linux/src/components/WindowFrame.tsx",
+      "originalSha256": "531f4248094cd0d5042d2a33e9f62396f282bc4d32e27ac2b9e2a431eb96ef42",
+      "currentSha256": "7b4557da636589ea4a7e4efc1a6863fb9a8936c1003ca47cba6ac5be68baff94"
+    },
+    {
+      "path": "package.json",
+      "originalSha256": "e82551834df571bb3c9e17006a4eca2bed01e08d68d810342bd292246e117f8c",
+      "currentSha256": "e0ce5bbb67b4bd37908336e595223c535d1208c584a78e5a7650df497eb9f993"
+    }
+  ],
+  "lockfileVersionsAndIntegrityPreserved": true,
+  "originalRecoveryBundle": "/workspace/preservation/SynthAi-before-build.bundle",
+  "originalCheckouts": "/workspace/recovered",
+  "donorPin": "1c45318a668de3bb3c54ae488b3d5f4109d1ba6b"
+}

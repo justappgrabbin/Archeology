@@ -1,0 +1,20 @@
+PASS: APK-mode host self-serves with pinned Node runtime
+PASS: phone opens directly into personal environment
+PASS: touch navigation is visible
+PASS: phone document has no horizontal overflow
+PASS: phone panel fits the actual viewport
+PASS: touch form saves real persistent personal state
+PASS: phone Foundry executes source in opaque Worker and registers real output
+PASS: phone reuses actual retained capability
+PASS: phone Worker has no Node process and network access is denied
+PASS: phone file import, preview and actual execution
+PASS: phone file navigation opens the real file manager
+PASS: touch landscape retains phone navigation
+PASS: reduced keyboard-height viewport remains bounded
+PASS: Android Back event is handled by the active app
+PASS: phone browser backup contains real Computer state
+PASS: phone restore validates and stages a real checkpoint
+PASS: no phone page script errors
+PASS: APK startup applies staged backup and preserves old state
+PASS: APK-mode restart preserves built capability
+19 phone checks passed.

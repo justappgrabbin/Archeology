@@ -1,0 +1,8 @@
+{
+  "zipIntegrity": true,
+  "freshExtractionBoot": true,
+  "restoreMilestoneSnapshot": true,
+  "retainedKleinCompositionExecuted": true,
+  "sourceFindingRecovered": true,
+  "noNpmInstallRequiredToRunBuiltDesktop": true
+}

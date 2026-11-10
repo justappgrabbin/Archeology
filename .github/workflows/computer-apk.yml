@@ -1,0 +1,47 @@
+name: Build self-serving Synthia APK
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['computer/**', '.github/workflows/computer-apk.yml']
+permissions:
+  contents: read
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v4
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.7'
+      - run: sdkmanager 'platforms;android-35' 'build-tools;35.0.0' 'ndk;27.0.12077973' 'cmake;3.22.1'
+      - run: npm ci --ignore-scripts --prefix computer/shell/kimi-linux --registry=https://registry.npmjs.org
+      - run: npm run build:desktop
+      - run: python computer/android/prepare-assets.py
+      - name: Stage pinned native runtime
+        run: |
+          curl -fL --retry 3 -o /tmp/node-mobile.zip https://github.com/nodejs-mobile/nodejs-mobile/releases/download/v18.20.4/nodejs-mobile-v18.20.4-android.zip
+          echo 'bd7321eaa1a7602fbe0bb87302df2d79d87835cf4363fbdd17c350dbb485c2af  /tmp/node-mobile.zip' | sha256sum -c -
+          python computer/android/prepare-node.py /tmp/node-mobile.zip
+      - run: gradle -p computer/android :app:assembleDebug --no-daemon
+      - name: Verify signatures
+        run: |
+          for apk in computer/android/app/build/outputs/apk/debug/*.apk; do
+            "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose "$apk"
+            "$ANDROID_HOME/build-tools/35.0.0/zipalign" -c 4 "$apk"
+            sha256sum "$apk"
+          done
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Synthia-self-serving-Android-APKs
+          path: computer/android/app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error

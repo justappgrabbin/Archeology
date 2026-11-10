@@ -1,0 +1,25 @@
+{
+  "passed": 19,
+  "checks": [
+    "APK-mode host self-serves with pinned Node runtime",
+    "phone opens directly into personal environment",
+    "touch navigation is visible",
+    "phone document has no horizontal overflow",
+    "phone panel fits the actual viewport",
+    "touch form saves real persistent personal state",
+    "phone Foundry executes source in opaque Worker and registers real output",
+    "phone reuses actual retained capability",
+    "phone Worker has no Node process and network access is denied",
+    "phone file import, preview and actual execution",
+    "phone file navigation opens the real file manager",
+    "touch landscape retains phone navigation",
+    "reduced keyboard-height viewport remains bounded",
+    "Android Back event is handled by the active app",
+    "phone browser backup contains real Computer state",
+    "phone restore validates and stages a real checkpoint",
+    "no phone page script errors",
+    "APK startup applies staged backup and preserves old state",
+    "APK-mode restart preserves built capability"
+  ],
+  "nativeAndroidDeviceTested": false
+}

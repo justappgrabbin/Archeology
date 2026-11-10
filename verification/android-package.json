@@ -1,0 +1,13 @@
+{
+  "applicationId": "org.synthai.computer.recovery",
+  "version": "0.2.0",
+  "abi": "arm64-v8a",
+  "bytes": 56773755,
+  "sha256": "a2362e011d6a89613b687a103741de5593e0f307a14b5d82d0529b1655396e39",
+  "zipIntegrity": true,
+  "requiredNativeLibrariesPresent": true,
+  "nativeSessionAndPhoneRuntimePackaged": true,
+  "runtimeDataExcluded": true,
+  "signatureVerification": "android-signature.txt",
+  "zipAlignment4Bytes": true
+}

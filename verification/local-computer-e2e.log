@@ -1,0 +1,35 @@
+PASS: unauthenticated API denied
+PASS: desktop sign-in and rendering
+PASS: session cookie is HttpOnly
+PASS: browser import, addressed preview and actual execution output
+PASS: image preview recognizes actual PNG bytes despite text filename
+PASS: PDF preview and original-byte download
+PASS: code editor executes its actual source
+PASS: text editor save reaches persistent filesystem
+PASS: chat uses recovered donor and retains actual conversation
+PASS: working application navigation: You-N-I-Verse
+PASS: working application navigation: Social Network
+PASS: working application navigation: Science Lab
+PASS: working application navigation: Foundry
+PASS: working application navigation: The Grove
+PASS: working application navigation: Recovery & Controls
+PASS: Foundry constructs, executes, tests and registers real source
+PASS: Grove reuses the actual retained Foundry artifact
+PASS: real isolated shell, inaccessible host workspace, persistent work file
+PASS: zero browser script errors
+PASS: same-name import preserves both originals
+PASS: ZIP original and extracted member retained
+PASS: research preserves cited finding and linked revision
+PASS: relationship has private-local visibility
+PASS: incorrect output is retained as failure and never registered
+PASS: code execution cannot see host token or workspace
+PASS: original Klein AUTOLING executes inside Computer isolation
+PASS: backup includes state checksum and terminal files
+PASS: restart rotates the session and preserves profile
+PASS: restart recalls exact original bytes by address
+PASS: restart preserves verified capability and findings
+PASS: corrupt backup rejected
+PASS: restore preserves recoverable previous directory
+PASS: restored Computer returns original profile and capability
+PASS: restored terminal work files survive
+34 acceptance checks passed.

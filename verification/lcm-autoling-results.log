@@ -1,0 +1,58 @@
+  [PASS] 3.2.1 artificial language: after X Y / XXYY / XXXYYY the grammar parses X^4 Y^4 and X^12 Y^12 (PARSED OK) ['PARSED OK', 'PARSED OK']
+  [PASS] 3.2.1 the learned grammar has a class holding the two sentence symbols (the report's S3 := S2 | S1) *S1 := X Y | S3 := S1 | S3 := S2 | *S2 := X S3 Y
+  [PASS] 3.2.1 and it still rejects what the informant would reject (X X X Y Y) 
+  [PASS] 3.2.2 English I: the learner finds the report's five classes (NEED/WANT, HER/HIM, YOU/I, RUN/GO, SHE/HE) [True, True, True, True, True]
+  [PASS] 3.2.2 and parses a sentence it was never given (SHE WANT S HER TO RUN) 
+  [PASS] 3.2.3 English II: the informant's NO to 'EAT A CAT S' is respected (the learner never accepts it) S2 := THE | S2 := A | S4 := CAT | S4 := DOG | S5 := EAT | S5 := KNOW | S6 := THE | S6 := THESE | S6 := SOME | S2 := SOME | *S1 := S5 S2 S4 | S6 := THOSE | *S3 := S5 S6 S4 S | S8 := I | S8 := YOU | *S7 := S8 S5 S2 S4
+  [PASS] 3.2.3 and EAT THE DOG (never input) is accepted 
+  [PASS] 3.2.3 it forms the noun class DOG/CAT [{'SOME', 'A', 'THE'}, {'CAT', 'DOG'}, {'KNOW', 'EAT'}, {'SOME', 'THESE', 'THOSE', 'THE'}, {'YOU', 'I'}]
+  [PASS] audit probe: the Kimi build created 1 rule from six related sentences; this learner builds classes (rules after each input: [1, 3, 5, 5, 6, 7])
+  [PASS] audit probe: it generalises to an unseen sentence (the bird eats fish) 
+ALL PASS
+
+--- grammar learned for artificial
+*S1 := X Y
+S3 := S1
+S3 := S2
+*S2 := X S3 Y
+
+--- grammar learned for English I
+S2 := WANT
+S2 := NEED
+S3 := HIM
+S3 := HER
+S4 := I
+S4 := YOU
+S5 := GO
+S5 := RUN
+*S1 := S4 S2 S3 TO S5
+S7 := HE
+S7 := SHE
+*S6 := S7 S2 S S3 TO S5
+
+--- grammar learned for English II
+S2 := THE
+S2 := A
+S4 := CAT
+S4 := DOG
+S5 := EAT
+S5 := KNOW
+S6 := THE
+S6 := THESE
+S6 := SOME
+S2 := SOME
+*S1 := S5 S2 S4
+S6 := THOSE
+*S3 := S5 S6 S4 S
+S8 := I
+S8 := YOU
+*S7 := S8 S5 S2 S4
+
+--- grammar learned for audit probe
+S2 := dog
+S2 := cat
+S3 := fish
+S3 := rice
+S2 := bird
+S3 := seed
+*S1 := the S2 eats S3
