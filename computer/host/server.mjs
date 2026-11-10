@@ -232,6 +232,21 @@ const server = createServer(async (req, res) => {
         const matches = files.resolve(url.searchParams.get('address') ?? '');
         return json(res, 200, matches.map(({ path, meta }) => ({ path, address: meta.address, digest: meta.digest, dna: meta.dna })));
       }
+      if (req.method === 'GET' && url.pathname === '/api/file-content') {
+        const path = url.searchParams.get('path');
+        if (typeof path !== 'string' || !path.startsWith('/home/user/') || path.includes('..') || path.includes('\\')) {
+          return json(res, 400, { error: 'A valid user file path is required.' });
+        }
+        const record = computer.vfs.read(path);
+        if (!record) return json(res, 404, { error: 'File not found.' });
+        const encoding = record.meta?.encoding === 'base64' ? 'base64' : 'utf8';
+        const bytes = Buffer.from(record.content, encoding === 'base64' ? 'base64' : 'utf8');
+        const digest = createHash('sha256').update(bytes).digest('hex');
+        if (record.meta?.digest && record.meta.digest !== digest) {
+          return json(res, 409, { error: 'Stored file integrity verification failed.' });
+        }
+        return json(res, 200, { path: record.path, encoding, content: record.content, size: bytes.length, digest });
+      }
       if (req.method === 'GET' && url.pathname === '/api/files') return json(res, 200, computer.vfs.list('/').map(({ content, ...record }) => record));
       if (req.method === 'GET' && url.pathname === '/api/activate-file') {
         return json(res, 200, await files.activate(url.searchParams.get('address') ?? '', url.searchParams.get('path') ?? ''));
